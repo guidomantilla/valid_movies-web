@@ -1,4 +1,4 @@
-package valid.movies.web.service;
+package valid.movies.web.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -7,7 +7,6 @@ import org.apache.http.HttpException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -18,7 +17,8 @@ import org.springframework.security.jwt.Jwt;
 import org.springframework.security.jwt.JwtHelper;
 import org.springframework.stereotype.Service;
 import valid.movies.web.model.OAuth2AuthenticationToken;
-import valid.movies.web.stub.OAuth2AuthenticationStub;
+import valid.movies.web.service.OAuth2AuthService;
+import valid.movies.web.stub.OAuth2AuthServerStub;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,17 +27,16 @@ import java.util.Map;
 import java.util.Optional;
 
 @Service
-public class OAuth2AuthenticationProvider implements AuthenticationProvider {
+public class DefaultOAuth2AuthService implements OAuth2AuthService {
 
-    private static final Logger logger = LoggerFactory.getLogger(OAuth2AuthenticationProvider.class);
+    private static final Logger logger = LoggerFactory.getLogger(OAuth2AuthService.class);
 
     private ObjectMapper mapper;
-    private OAuth2AuthenticationStub oAuth2AuthenticationStub;
-
+    private OAuth2AuthServerStub oAuth2AuthServerStub;
 
     @Autowired
-    public OAuth2AuthenticationProvider(OAuth2AuthenticationStub oAuth2AuthenticationStub) {
-        this.oAuth2AuthenticationStub = oAuth2AuthenticationStub;
+    public DefaultOAuth2AuthService(OAuth2AuthServerStub oAuth2AuthServerStub) {
+        this.oAuth2AuthServerStub = oAuth2AuthServerStub;
         this.mapper = new ObjectMapper();
     }
 
@@ -104,7 +103,7 @@ public class OAuth2AuthenticationProvider implements AuthenticationProvider {
 
         try {
 
-            return Optional.of(oAuth2AuthenticationStub.call(username, password));
+            return Optional.of(oAuth2AuthServerStub.call(username, password));
 
         } catch (IOException | HttpException e) {
             logger.error(e.getMessage(), e);

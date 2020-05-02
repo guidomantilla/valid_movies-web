@@ -1,4 +1,4 @@
-package valid.movies.web.stub;
+package valid.movies.web.stub.impl;
 
 import okhttp3.*;
 import org.apache.http.HttpException;
@@ -6,11 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import valid.movies.web.stub.OAuth2AuthServerStub;
 
 import java.io.IOException;
 
 @Component
-public class OAuth2AuthenticationStub {
+public class DefaultOAuth2AuthServerStub implements OAuth2AuthServerStub {
 
     private OkHttpClient okHttpClient;
 
@@ -27,7 +28,7 @@ public class OAuth2AuthenticationStub {
     private String tokenUri;
 
     @Autowired
-    public OAuth2AuthenticationStub(OkHttpClient okHttpClient) {
+    public DefaultOAuth2AuthServerStub(OkHttpClient okHttpClient) {
         this.okHttpClient = okHttpClient;
     }
 

@@ -25,7 +25,6 @@ public class BeanConfig {
         return new RequestContextListener();
     }
 
-
     @Bean
     public OkHttpClient okHttpClient() throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
 
