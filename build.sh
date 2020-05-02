@@ -7,9 +7,23 @@ fi
 
 PARENT_PORT=$2
 if [ -z "$PARENT_PORT" ]; then
-    PORT=9443
+    PORT=7445
 else
     PORT="$PARENT_PORT"
+fi
+
+PARENT_OAUTH_HOST=$3
+if [ -z "$PARENT_OAUTH_HOST" ]; then
+    OAUTH_HOST=valid_mysql
+else
+    OAUTH_HOST="$PARENT_OAUTH_HOST"
+fi
+
+PARENT_API_HOST=$4
+if [ -z "$PARENT_API_HOST" ]; then
+    API_HOST=valid_mysql
+else
+    API_HOST="$PARENT_API_HOST"
 fi
 
 gradle clean build \
@@ -18,5 +32,7 @@ gradle clean build \
 && docker container rm --force "$APP_NAME"
    docker container run --detach --restart always \
                         --network valid_network \
+                        --link "$OAUTH_HOST":valid_oauth2 \
+                        --link "$API_HOST":valid_movies \
                         --publish "$PARENT_PORT":8443 \
                         --name "$APP_NAME" "$APP_NAME"
