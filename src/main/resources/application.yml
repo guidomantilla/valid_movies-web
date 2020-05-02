@@ -1,1 +1,41 @@
+server:
+  port: 8443
+  compression:
+    enabled: false
+  servlet:
+    session:
+      cookie:
+        name: UISESSION
+        secure: true
+  ssl:
+    enabled: true
+    protocol: TLS
+    key-store: classpath:ssl.p12
+    key-store-password: Raven123qweasd+
+    key-store-type: PKCS12
+    key-alias: ssl
 
+spring:
+  main:
+    banner-mode: off
+    allow-bean-definition-overriding: false
+    register-shutdown-hook: true
+  application:
+    name: valid_movies-web
+  profiles:
+    active: ${VALID_MOVIES_ENVIRONMENT:dev}
+  thymeleaf:
+    cache: false
+    enabled: true
+
+security:
+  oauth2:
+    client:
+      client-id: ${VALID_MOVIES_OAUTH2_USERNAME:VALID_MOVIE_RENTAL_WEB}
+      client-secret: ${VALID_MOVIES_OAUTH2_PASSWORD:VALID_MOVIE_RENTAL_WEB}
+      grant-type: password
+      access-token-uri: ${VALID_MOVIES_OAUTH2_URL:https://localhost:7443/oauth}/token
+
+endpoint:
+  movies:
+    get-films: ${VALID_MOVIES_API_URL:https://localhost:8445}/films

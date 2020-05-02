@@ -3,11 +3,13 @@ package valid.movies.web;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
-public class ValidMoviesWebApplication {
+import javax.net.ssl.HttpsURLConnection;
 
-	public static void main(String[] args) {
-		SpringApplication.run(ValidMoviesWebApplication.class, args);
-	}
+@SpringBootApplication
+public class Application {
+
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
 
 }

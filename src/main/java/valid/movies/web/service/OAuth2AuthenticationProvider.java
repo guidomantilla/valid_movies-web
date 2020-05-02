@@ -17,6 +17,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.jwt.Jwt;
 import org.springframework.security.jwt.JwtHelper;
 import org.springframework.stereotype.Service;
+import valid.movies.web.model.OAuth2AuthenticationToken;
 import valid.movies.web.stub.OAuth2AuthenticationStub;
 
 import java.io.IOException;
@@ -26,15 +27,16 @@ import java.util.Map;
 import java.util.Optional;
 
 @Service
-public class OAuth2UserDetailsService implements AuthenticationProvider {
+public class OAuth2AuthenticationProvider implements AuthenticationProvider {
 
-    private static final Logger logger = LoggerFactory.getLogger(OAuth2UserDetailsService.class);
+    private static final Logger logger = LoggerFactory.getLogger(OAuth2AuthenticationProvider.class);
 
-    private OAuth2AuthenticationStub oAuth2AuthenticationStub;
     private ObjectMapper mapper;
+    private OAuth2AuthenticationStub oAuth2AuthenticationStub;
+
 
     @Autowired
-    public OAuth2UserDetailsService(OAuth2AuthenticationStub oAuth2AuthenticationStub) {
+    public OAuth2AuthenticationProvider(OAuth2AuthenticationStub oAuth2AuthenticationStub) {
         this.oAuth2AuthenticationStub = oAuth2AuthenticationStub;
         this.mapper = new ObjectMapper();
     }
@@ -50,17 +52,16 @@ public class OAuth2UserDetailsService implements AuthenticationProvider {
         String username = authentication.getName();
         String password = authentication.getCredentials().toString();
 
-        Optional<String> responseOptional = callOAuth2TokenGenerator(username, password);
-        String response = responseOptional.orElseThrow(() -> new AuthenticationServiceException("Error en la Comunicacion con el servidor de Authenticacion"));
+        Optional<String> jsonOptional = callOAuth2TokenGenerator(username, password);
+        String json = jsonOptional.orElseThrow(() -> new AuthenticationServiceException("Error en la Comunicacion con el servidor de Authenticacion"));
 
-        Optional<String> tokenOptional = extractToken(response);
+        Optional<String> tokenOptional = extractToken(json);
         String token = tokenOptional.orElseThrow(() -> new AuthenticationServiceException("Error en la Extrayendo el token"));
 
         Optional<List<GrantedAuthority>> optionalGrantedAuthorities = extractAuthorities(token);
         List<GrantedAuthority> grantedAuthorities = optionalGrantedAuthorities.orElseThrow(() -> new AuthenticationServiceException("Error en la Extrayendo los permisos del token"));
 
-        Authentication auth = new UsernamePasswordAuthenticationToken(username, password, grantedAuthorities);
-        return auth;
+        return new OAuth2AuthenticationToken(username, password, token, grantedAuthorities);
     }
 
     private Optional<List<GrantedAuthority>> extractAuthorities(String token) {
@@ -83,11 +84,11 @@ public class OAuth2UserDetailsService implements AuthenticationProvider {
         return Optional.empty();
     }
 
-    private Optional<String> extractToken(String response) {
+    private Optional<String> extractToken(String json) {
 
         try {
 
-            JsonNode node = mapper.readTree(response);
+            JsonNode node = mapper.readTree(json);
             String token = node.path("access_token").asText();
 
             return Optional.of(token);

@@ -8,7 +8,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import valid.movies.web.service.OAuth2AuthenticationProvider;
 
 import javax.servlet.http.HttpServletResponse;
@@ -17,12 +17,12 @@ import javax.servlet.http.HttpServletResponse;
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
-public class OAuth2ServerConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private OAuth2AuthenticationProvider oAuth2AuthenticationProvider;
 
     @Autowired
-    public OAuth2ServerConfig(OAuth2AuthenticationProvider oAuth2AuthenticationProvider) {
+    public SecurityConfig(OAuth2AuthenticationProvider oAuth2AuthenticationProvider) {
         this.oAuth2AuthenticationProvider = oAuth2AuthenticationProvider;
     }
 
@@ -40,12 +40,17 @@ public class OAuth2ServerConfig extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(HttpSecurity http) throws Exception {
 
-        http.httpBasic().disable();
+        http.httpBasic();
         http.cors().disable();
         http.csrf().disable();
-        http.authorizeRequests().anyRequest().permitAll();
 
-        http.formLogin().loginPage("/login").defaultSuccessUrl("/home").failureUrl("/login-error");
+        http.authorizeRequests().antMatchers("/", "/error**", "/js/**", "/css/**").permitAll();
+        http.authorizeRequests().anyRequest().authenticated();
+
+        http.formLogin().loginPage("/login").defaultSuccessUrl("/home").failureUrl("/login-error")
+        .and().logout().logoutUrl("/logout").logoutSuccessUrl("/");
+
+        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.ALWAYS);
 
         http.exceptionHandling()
                 .authenticationEntryPoint(
