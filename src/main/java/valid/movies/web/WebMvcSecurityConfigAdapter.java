@@ -6,6 +6,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -69,7 +70,7 @@ public class WebMvcSecurityConfigAdapter extends WebSecurityConfigurerAdapter im
     public void turnOnSecurity(HttpSecurity http, String... allowAntPatterns) throws Exception {
 
         http.httpBasic();
-        http.csrf();
+        http.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
         http.cors().disable();
 
         http.authorizeRequests().antMatchers(allowAntPatterns).permitAll();
