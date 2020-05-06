@@ -90,8 +90,13 @@ public class WebMvcSecurityConfigAdapter extends WebSecurityConfigurerAdapter im
     public void sessionBehavior(HttpSecurity http) throws Exception {
 
         http.formLogin()
-                .loginPage("/login").defaultSuccessUrl("/home").failureUrl("/login-error").and()
-                .logout().logoutUrl("/logout").invalidateHttpSession(true).deleteCookies().logoutSuccessUrl("/");
+                .loginPage("/login").defaultSuccessUrl("/home", true).failureUrl("/login-error")
+                .and() //.deleteCookies("JSESSIONID", "remember-me")
+                .logout().logoutUrl("/logout").clearAuthentication(true).invalidateHttpSession(true).deleteCookies().logoutSuccessUrl("/")
+                /*.and()
+                .rememberMe()
+                .tokenValiditySeconds((int) TimeUnit.DAYS.toSeconds(21))
+                .key("somethingverysecured")*/;
 
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.ALWAYS);
     }
