@@ -26,9 +26,7 @@ else
     API_HOST="$PARENT_API_HOST"
 fi
 
-gradle clean build \
-&& mv build/libs/$(ls build/libs) build/libs/"$APP_NAME".jar \
-&& docker build . -t "$APP_NAME" \
+docker build . -t "$APP_NAME" \
 && docker container rm --force "$APP_NAME"
    docker container run --detach --restart always \
                         --network valid-network \

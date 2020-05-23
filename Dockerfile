@@ -1,8 +1,24 @@
-FROM openjdk:8-jdk-alpine
+FROM gradle:6.4.1-jdk8 AS builder
 
-# Set necessary environment variables needed for our running image
-ENV VALID_APP_NAME='valid-web' \
-    VALID_MOVIES_OAUTH2_HOSTNAME='valid-oauth2' \
+ENV APP_HOME='/root/dev/app/' \
+    VALID_APP_NAME='valid-web'
+
+WORKDIR $APP_HOME
+COPY . .
+RUN gradle build -x test --continue && \
+    echo $(ls build/libs) \
+    mv build/libs/$(ls build/libs) build/libs/${VALID_APP_NAME}.jar
+
+
+FROM openjdk:8-jre-alpine
+
+ENV APP_HOME='/root/dev/app/' \
+    VALID_APP_NAME='valid-web'
+
+COPY --from=builder ${APP_HOME}/build/libs/${VALID_APP_NAME}.jar .
+
+# Set necessary environment variables needed for running image
+ENV VALID_MOVIES_OAUTH2_HOSTNAME='valid-oauth2' \
     VALID_MOVIES_OAUTH2_PORT='8443' \
     VALID_MOVIES_OAUTH2_USERNAME='VALID_MOVIE_RENTAL_WEB' \
     VALID_MOVIES_OAUTH2_PASSWORD='VALID_MOVIE_RENTAL_WEB' \
@@ -16,9 +32,7 @@ RUN apk --no-cache add curl
 
 VOLUME /tmp
 
-ARG JAR_FILE=build/libs/${VALID_APP_NAME}.jar
-
-ADD ${JAR_FILE} valid-web.jar
+RUN mv ${VALID_APP_NAME}.jar valid-web.jar
 
 EXPOSE 8443
 
